@@ -1,0 +1,57 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.bitvaultengine.nes'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.bitvaultengine.nes"
+        minSdk 23
+        targetSdk 34
+        versionCode 2
+        versionName "2.0"
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            // Signed with the debug keystore so the APK published on the GitHub
+            // release page installs straight from the phone without any secrets
+            // in the repository.
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    androidResources {
+        // Keep both payloads readable as-is.
+        noCompress 'nes', 'wasm'
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/*', '**/*.kotlin_module']
+        }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+// The project deliberately has NO external dependencies: the emulator is wasm and
+// the UI is plain HTML/CSS/JS, so the build needs nothing but the Android SDK.
+//
+// The web assets under src/main/assets are kept byte-identical to emulator/www by
+// tools/sync_web_assets.sh, and a unit test fails when the two trees drift apart.

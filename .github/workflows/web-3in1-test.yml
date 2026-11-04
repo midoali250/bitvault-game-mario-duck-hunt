@@ -1,0 +1,28 @@
+name: Verify web three-in-one variant
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: variants/web-3in1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check packaged assets match source
+        run: |
+          ./tools/sync_web_assets.sh
+          git diff --exit-code -- android/app/src/main/assets
+      - name: Run game and UI tests
+        env:
+          REQUIRE_JSDOM: '1'
+        run: node tests/run.js
